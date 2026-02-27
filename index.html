@@ -1,0 +1,829 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1e5f9f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Stok Maintenance">
+
+<link rel="icon" href="https://i.imgur.com/5XV4LJW.png">
+<link rel="apple-touch-icon" href="https://i.imgur.com/5XV4LJW.png">
+
+<title>STOK MAINTENANCE</title>
+    <style>
+      * { box-sizing: border-box; }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #e8f0fe;
+        font-size: 40px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      h2 {
+        font-size: 60px;
+        font-weight: 800;
+        margin: 16px;
+      }
+
+      .muted {
+        font-size: 40px;
+        margin: 0 16px 16px;
+        color: #444;
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        margin: 0 16px 16px;
+      }
+
+      label {
+        font-size: 40px;
+        font-weight: 700;
+        margin-top: 24px;
+        display: block;
+      }
+
+      input, select {
+        width: 100%;
+        padding: 18px;
+        font-size: 40px;
+        margin-top: 10px;
+        border-radius: 12px;
+        border: 2px solid #dadce0;
+      }
+
+      input[readonly] { background: #f5f5f5; }
+
+
+#msg {
+  margin-top: 12px;
+  padding: 22px;
+  border-radius: 18px;
+  font-size: 45px;
+  font-weight: 800;
+  display: none;
+  text-align: center;
+  white-space: pre-line;
+}
+
+
+      body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(180deg, #1e5f9f, #e8f0fe);
+  margin: 0;
+  font-size: 32px;
+}
+
+.header {
+  text-align: center;
+  padding: 50px 20px 35px;
+  background: linear-gradient(135deg, #1e5f9f, #0d3c6e);
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+  color: white;
+}
+
+.logo {
+  width: 220px;
+  background: white;
+  padding: 15px 25px;
+  border-radius: 30px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 55px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: white;
+}
+
+.company {
+  margin-top: 10px;
+  font-size: 35px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 22px;
+  margin: 18px;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.1);
+}
+
+button {
+  background: linear-gradient(90deg, #1e5f9f, #0d3c6e);
+  border-radius: 12px;
+  color: #fff;
+}
+
+button:hover {
+  opacity: 0.95;
+  transform: translateY(-2px);
+  transition: 0.15s ease-out;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 24px;
+  font-size: 40px;
+  font-weight: 900;
+  border-radius: 16px; /* samakan radius dengan input */
+  border: 2px solid #dadce0; /* sama seperti input */
+
+  background: linear-gradient(90deg, #1e5f9f, #0d3c6e);
+  color: #fff;
+
+  /* 🔥 Ring putih ukuran sama seperti input */
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.35);
+
+  transition: all 0.2s ease;
+  margin-top: 18px;
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.5);
+}
+
+.loading-btn {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.loading-btn::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  margin-top: -13px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+body {
+  visibility: hidden;
+}
+    </style>
+<script src="https://unpkg.com/@zxing/browser@latest"></script>
+  </head>
+  <body>
+
+<div id="loadingScreen" style="
+  position:fixed;
+  inset:0;
+  background:#1e5f9f;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:40px;
+  font-weight:bold;
+  z-index:9999;">
+  Loading...
+</div>
+
+<!-- HEADER CORPORATE -->
+<div class="header">
+<img src="https://i.imgur.com/5XV4LJW.png" alt="Ligno Logo" class="logo">
+  <h1>STOK MAINTENANCE</h1>
+  <div class="company">PT Ligno Specialty Chemicals</div>
+</div>
+
+    <div class="card"> 
+      <button id="btnStartScan" class="btn-primary" style="margin-bottom:18px;">
+📷 Mulai Scan
+</button>
+
+<button id="btnStopScan" class="btn-primary" 
+style="display:none;background:#c62828;margin-bottom:18px;">
+⛔ Stop Scan
+</button>
+
+<video id="video"
+style="width:100%;border-radius:18px;display:none;margin-top:15px;"
+playsinline
+webkit-playsinline></video>
+
+      <label>Kode Barang</label>
+      <input id="code" placeholder="Ketik Kode / Nama" />
+
+      <div
+        id="suggestBox"
+        style="background:#fff;border:2px solid #dadce0;border-radius:12px;
+              max-height:320px;overflow:auto;display:none;margin-top:10px;">
+      </div>
+
+      <label>Nama Barang</label>
+      <input id="name" placeholder="Otomatis dari Stok Barang" readonly />
+
+      <label>Stok Tersedia</label>
+      <input id="stok" readonly />
+
+    <div id="typeWrapper" style="display:none;">
+  <label>Tipe</label>
+  <select id="type">
+    <option value="MASUK">MASUK</option>
+    <option value="KELUAR">KELUAR</option>
+  </select>
+</div>
+
+<div style="display:flex; gap:16px; align-items:flex-end;">
+
+  <div style="flex:1;">
+    <label>petugas<span style="color:red">*</span></label>
+    <select id="petugas">
+      <option value="">Pilih</option>
+      <option>Hendra</option>
+      <option>Agus</option>
+      <option>Sutikno</option>
+      <option>Purchasing</option>
+    </select>
+  </div>
+
+  <div style="flex:1;">
+    <label>Qty <span style="color:red">*</span></label>
+<input 
+  id="qty"
+  type="number"
+  inputmode="numeric"
+  pattern="[0-9]*"
+  placeholder="Contoh 3"
+  min="1"
+/>
+  </div>
+
+</div> <!-- ✅ TUTUP FLEX DI SINI -->
+
+<div style="height:10px;"></div>
+
+<button id="btnSave" class="btn-primary">💾 Simpan Transaksi</button>
+
+<div
+  id="loading"
+  style="display:none;margin-top:10px;font-size:32px;font-weight:700;color:#1a73e8;">
+  ⏳ Menyimpan transaksi...
+</div>
+
+<div
+  id="msg"
+  style="margin-top:12px;padding:14px;border-radius:12px;
+         font-size:40px;display:none;">
+</div>
+
+</div> <!-- ✅ TUTUP .card DI SINI -->
+
+    <script>
+
+      /* ========= BEEP ENGINE ========= */
+      let audioCtx = null;
+
+      function initAudio() {
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContext();
+        }
+      }
+
+      function playBeep() {
+        if (!audioCtx) return;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.value = 1000;
+        gain.gain.value = 0.25;
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        setTimeout(() => osc.stop(), 120);
+      }
+
+function playSaveBeep() {
+  if (!audioCtx) return;
+
+  // 🔥 PENTING
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = 'square';
+  osc.frequency.value = 1000;
+  gain.gain.value = 0.25;
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  setTimeout(() => osc.stop(), 120);
+}
+
+      const msg = document.getElementById('msg');
+
+      const elCode = document.getElementById('code');
+      const elName = document.getElementById('name');
+      const elType = document.getElementById('type');
+      const elQty = document.getElementById('qty');
+      const elStok = document.getElementById('stok');
+      const btnSave = document.getElementById('btnSave');
+      // 🔒 Awal: tombol tidak aktif
+btnSave.disabled = true;
+btnSave.style.opacity = '0.5';
+      const elPetugas = document.getElementById('petugas');
+
+
+let isPurchasingLoggedIn = false;
+
+elPetugas.addEventListener('change', () => {
+
+  const p = elPetugas.value.toUpperCase();
+
+  btnSave.disabled = true;
+  btnSave.style.opacity = '0.5';
+
+  if (!p) return;
+
+  if (p !== 'PURCHASING') {
+    document.getElementById('typeWrapper').style.display = 'none';
+    elType.value = 'KELUAR';
+    btnSave.disabled = false;
+    btnSave.style.opacity = '1';
+    return;
+  }
+
+  if (p === 'PURCHASING' && !isPurchasingLoggedIn) {
+    openPwModal();
+    return;
+  }
+
+});
+
+function askPassword() {
+
+  const pw = prompt("Masukkan Password Purchasing:");
+
+  if (pw === null) {
+    // user tekan cancel
+    elPetugas.value = '';
+    setMsg("Login dibatalkan", false);
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(res => {
+
+      if (!res.ok) {
+
+        alert("❌ Password salah!");
+        askPassword(); // 🔥 ulangi popup lagi
+        return;
+      }
+
+      // ✅ jika benar
+      window.purchasingPassword = pw;
+      isPurchasingLoggedIn = true;
+
+      document.getElementById('typeWrapper').style.display = 'block';
+      btnSave.disabled = false;
+      btnSave.style.opacity = '1';
+
+      setMsg("Login Purchasing berhasil", true);
+
+    })
+    .validatePurchasingPassword(pw);
+
+}
+
+function showLoading() {
+  btnSave.disabled = true;
+  btnSave.classList.add('loading-btn');
+  btnSave.textContent = "Menyimpan...";
+}
+
+function hideLoading() {
+  btnSave.disabled = false;
+  btnSave.classList.remove('loading-btn');
+  btnSave.textContent = "💾 Simpan Transaksi";
+}
+      /* ========= MASTER LIST + SUGGEST (HP FRIENDLY) ========= */
+      let MASTER = [];
+
+      function renderSuggest(items) {
+        const box = document.getElementById('suggestBox');
+        if (!box) return;
+
+        if (!items || !items.length) {
+          box.style.display = 'none';
+          box.innerHTML = '';
+          return;
+        }
+
+        box.innerHTML = items.map(it => {
+          const kode = (it.code || it.barcode || '').replace(/"/g, '&quot;');
+          const nama = (it.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+return `
+  <div data-code="${kode}"
+      style="
+        padding:26px 22px;
+        border-bottom:4px solid #e5e5e5;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        gap:18px;
+        background:white;
+        font-size:38px;
+        font-weight:900;
+      ">
+      
+      <span style="white-space:nowrap;">
+        ${kode}
+      </span>
+
+      <span style="
+        font-weight:900;
+        color:#888;
+      ">
+        |
+      </span>
+
+      <span style="
+        flex:1;
+        font-weight:900;
+        color:#111;
+      ">
+        ${nama}
+      </span>
+
+  </div>
+`;
+        }).join('');
+
+        box.style.display = 'block';
+        
+
+        box.querySelectorAll('[data-code]').forEach(el => {
+el.addEventListener('click', () => {
+
+  const kode = el.getAttribute('data-code');
+
+  playBeep();
+
+  // SET VALUE DULU
+  elCode.value = kode;
+
+  box.style.display = 'none';
+  box.innerHTML = '';
+
+  // PAKSA UPDATE STOK
+  setTimeout(() => {
+    lookupMaster();
+    elQty.focus();
+  }, 100);
+
+});
+        });
+      }
+
+      function showSuggest(query) {
+        const box = document.getElementById('suggestBox');
+        if (!box) return;
+
+        const q = (query || '').toLowerCase().trim();
+        if (!q) {
+          box.style.display = 'none';
+          box.innerHTML = '';
+          return;
+        }
+
+        const hits = MASTER
+          .filter(it =>
+            (it.code && it.code.toLowerCase().includes(q)) ||
+            (it.name && it.name.toLowerCase().includes(q)) ||
+            (it.barcode && it.barcode.toLowerCase().includes(q))
+          )
+          .slice(0, 20);
+
+        renderSuggest(hits);
+      }
+
+
+function setMsg(text, ok = true, type = '') {
+
+  msg.style.display = 'block';
+  msg.textContent = text;
+
+  if (!ok) {
+    msg.style.background = '#fce8e6';
+    msg.style.color = '#a50e0e';
+    msg.style.border = '2px solid #d93025';
+    return;
+  }
+
+  // 🔵 MASUK = Biru
+  if (type === 'MASUK') {
+    msg.style.background = '#e8f0fe';
+    msg.style.color = '#0b57d0';
+    msg.style.border = '2px solid #1a73e8';
+  }
+
+  // 🟢 KELUAR = Hijau
+  else if (type === 'KELUAR') {
+    msg.style.background = '#e6f4ea';
+    msg.style.color = '#137333';
+    msg.style.border = '2px solid #34a853';
+  }
+
+  // Default success
+  else {
+    msg.style.background = '#e6f4ea';
+    msg.style.color = '#137333';
+    msg.style.border = '2px solid #34a853';
+  }
+}
+
+      function normalizeCode(raw) {
+        return (raw || '').toString().trim();
+      }
+
+function lookupMaster() {
+
+  const clean = normalizeCode(elCode.value).toUpperCase();
+  if (!clean) return;
+
+  const item = MASTER.find(x => 
+    x.code.toUpperCase() === clean
+  );
+
+  if (!item) {
+    setMsg('Barang tidak ditemukan', false);
+    return;
+  }
+
+  elName.value = item.name;
+  elStok.value = item.stock;
+
+  setMsg(`STOK TERSEDIA: ${item.stock}`, true);
+}
+
+// AUTO AMBIL DATA SAAT DIKETIK / SCAN
+      let lastCode = '';
+let lastInputTime = 0;
+let scanTimer = null;
+
+elCode.addEventListener('input', () => {
+
+  const now = Date.now();
+  const diff = now - lastInputTime;
+  lastInputTime = now;
+
+  const code = normalizeCode(elCode.value);
+
+  elName.value = '';
+  elStok.value = '';
+
+  showSuggest(code);
+
+  clearTimeout(scanTimer);
+
+  // 🔥 Kalau jarak ketikan sangat cepat → anggap SCAN
+  if (diff < 50) {
+
+    lookupMaster(); // langsung tanpa delay
+
+  } else {
+
+    // manual ketik → tetap pakai delay
+    scanTimer = setTimeout(() => {
+
+      if (code.length >= 4) {
+        lookupMaster();
+      }
+
+    }, 150);
+
+  }
+
+});
+
+
+// 🔥 TAMBAHKAN DI SINI (DI BAWAHNYA)
+
+elCode.addEventListener('keydown', function(e) {
+
+  if (e.key === 'Enter') {
+
+    clearTimeout(scanTimer);
+
+    lookupMaster();
+
+  }
+
+});
+
+
+btnSave.addEventListener('click', () => {
+
+  initAudio();
+
+const qtyValue = elQty.value.trim();
+
+const payload = {
+  code: normalizeCode(elCode.value),
+  type: elType.value,
+  qty: qtyValue,
+  petugas: elPetugas.value,
+  password: window.purchasingPassword || ''
+};
+
+  if (!payload.petugas) return setMsg('Pilih petugas.', false);
+  if (!payload.code) return setMsg('Kode kosong.', false);
+const qtyNumber = Number(payload.qty);
+
+if (isNaN(qtyNumber)) {
+  return setMsg('Qty harus angka', false);
+}
+
+if (qtyNumber === 0) {
+  return setMsg('Qty tidak boleh 0', false);
+}
+
+let stokSekarang = Number(elStok.value) || 0;
+let stokBaru = stokSekarang;
+
+if (payload.type === "MASUK") {
+  stokBaru += qtyNumber;
+} else {
+  if (qtyNumber > stokSekarang) {
+    return setMsg(`STOK TIDAK CUKUP. STOK: ${stokSekarang}`, false);
+  }
+  stokBaru -= qtyNumber;
+}
+
+  // 🚀 UPDATE UI LANGSUNG
+  elStok.value = stokBaru;
+  playSaveBeep();
+
+let pesan = "";
+let tipeTampil = payload.type;
+
+if (payload.type === "KELUAR" && payload.qty < 0) {
+  pesan = `🔵 ${elName.value}\nBARANG DIKEMBALIKAN: ${Math.abs(payload.qty)}\nSTOK TERSEDIA: ${stokBaru}`;
+  tipeTampil = "MASUK"; // supaya warna biru
+} else {
+  pesan = `✅ ${elName.value}\n${payload.type}: ${payload.qty}\nSTOK TERSEDIA: ${stokBaru}`;
+}
+
+setMsg(pesan, true, tipeTampil);
+
+  // 🚀 RESET FORM LANGSUNG (INI YANG BIKIN TERASA CEPAT)
+elCode.value = '';
+elName.value = '';
+elQty.value = '';
+
+// ❌ jangan focus otomatis
+// elCode.focus();
+
+// ❌ jangan buka suggest lagi
+document.getElementById('suggestBox').style.display = 'none';
+
+// 📡 SERVER JALAN DI BELAKANG
+
+    </script>
+
+    
+<script>
+document.addEventListener('DOMContentLoaded', function(){  
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.body.style.visibility = 'visible';
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  let codeReader = null;
+  let stream = null;
+  let isScanning = false;
+
+  const video = document.getElementById('video');
+  const btnStartScan = document.getElementById('btnStartScan');
+  const btnStopScan = document.getElementById('btnStopScan');
+
+  async function startScan() {
+
+    if (isScanning) return;
+
+    initAudio();
+
+    try {
+
+      // 🔥 Minta izin kamera dulu (lebih stabil di iPhone)
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } }
+      });
+
+      video.srcObject = stream;
+      video.setAttribute("playsinline", true);
+      await video.play();
+
+      codeReader = new ZXingBrowser.BrowserMultiFormatReader();
+
+      isScanning = true;
+
+      video.style.display = 'block';
+      btnStartScan.style.display = 'none';
+      btnStopScan.style.display = 'block';
+
+      codeReader.decodeFromVideoDevice(
+        null,
+        video,
+        (result) => {
+
+          if (!isScanning) return;
+
+          if (result) {
+
+            playBeep();
+
+            const scannedCode = result.getText().trim();
+
+            stopScan();
+
+            elCode.value = scannedCode;
+
+            lookupMaster();
+
+            elQty.focus();
+          }
+        }
+      );
+
+    } catch (err) {
+
+      console.error(err);
+      setMsg("❌ Kamera gagal dibuka. Pastikan izin kamera aktif.", false);
+
+      stopScan();
+    }
+  }
+
+  function stopScan() {
+
+    isScanning = false;
+
+    if (codeReader) {
+      try { codeReader.reset(); } catch(e){}
+    }
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    video.srcObject = null;
+
+    video.style.display = 'none';
+    btnStartScan.style.display = 'block';
+    btnStopScan.style.display = 'none';
+  }
+
+  btnStartScan.addEventListener('click', startScan);
+  btnStopScan.addEventListener('click', stopScan);
+
+});
+</script>
+
+</body>
+</html>
