@@ -401,31 +401,6 @@ function askPassword() {
     return;
   }
 
-  google.script.run
-    .withSuccessHandler(res => {
-
-      if (!res.ok) {
-
-        alert("❌ Password salah!");
-        askPassword(); // 🔥 ulangi popup lagi
-        return;
-      }
-
-      // ✅ jika benar
-      window.purchasingPassword = pw;
-      isPurchasingLoggedIn = true;
-
-      document.getElementById('typeWrapper').style.display = 'block';
-      btnSave.disabled = false;
-      btnSave.style.opacity = '1';
-
-      setMsg("Login Purchasing berhasil", true);
-
-    })
-    .validatePurchasingPassword(pw);
-
-}
-
 function showLoading() {
   btnSave.disabled = true;
   btnSave.classList.add('loading-btn');
@@ -721,9 +696,10 @@ document.getElementById('suggestBox').style.display = 'none';
 
 // 📡 SERVER JALAN DI BELAKANG
 
-    </script>
+});
+</script>
 
-    
+
 <script>
 document.addEventListener('DOMContentLoaded', function(){  
   document.getElementById('loadingScreen').style.display = 'none';
@@ -732,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+window.addEventListener("load", function() {
 
   let codeReader = null;
   let stream = null;
@@ -742,21 +718,22 @@ document.addEventListener("DOMContentLoaded", function() {
   const btnStartScan = document.getElementById('btnStartScan');
   const btnStopScan = document.getElementById('btnStopScan');
 
-  async function startScan() {
+  if (!btnStartScan) {
+    console.log("Tombol scan tidak ditemukan");
+    return;
+  }
+
+  btnStartScan.onclick = async function () {
 
     if (isScanning) return;
 
-    initAudio();
-
     try {
 
-      // 🔥 Minta izin kamera dulu (lebih stabil di iPhone)
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" } }
       });
 
       video.srcObject = stream;
-      video.setAttribute("playsinline", true);
       await video.play();
 
       codeReader = new ZXingBrowser.BrowserMultiFormatReader();
@@ -776,29 +753,29 @@ document.addEventListener("DOMContentLoaded", function() {
 
           if (result) {
 
-            playBeep();
-
             const scannedCode = result.getText().trim();
 
             stopScan();
 
-            elCode.value = scannedCode;
+            document.getElementById('code').value = scannedCode;
 
-            lookupMaster();
+            if (typeof lookupMaster === "function") {
+              lookupMaster();
+            }
 
-            elQty.focus();
+            document.getElementById('qty').focus();
           }
         }
       );
 
     } catch (err) {
-
       console.error(err);
-      setMsg("❌ Kamera gagal dibuka. Pastikan izin kamera aktif.", false);
-
+      alert("Kamera gagal dibuka. Pastikan izin kamera aktif.");
       stopScan();
     }
-  }
+  };
+
+  btnStopScan.onclick = stopScan;
 
   function stopScan() {
 
@@ -818,9 +795,6 @@ document.addEventListener("DOMContentLoaded", function() {
     btnStartScan.style.display = 'block';
     btnStopScan.style.display = 'none';
   }
-
-  btnStartScan.addEventListener('click', startScan);
-  btnStopScan.addEventListener('click', stopScan);
 
 });
 </script>
