@@ -299,10 +299,12 @@ webkit-playsinline></video>
 
 </div> <!-- ✅ TUTUP .card DI SINI -->
 
-    <script>
+<script>
 
-      /* ========= BEEP ENGINE ========= */
-      let audioCtx = null;
+const API_URL = "https://script.google.com/macros/s/AKfycbxgQ35KQAmpN9_9Uij88oI05jPue7uDu8NW4-P4NkVuK0yh_tTaqOo6wkUsD1fF6bj5/exec";
+
+/* ========= BEEP ENGINE ========= */
+let audioCtx = null;
 
       function initAudio() {
         if (!audioCtx) {
@@ -414,6 +416,19 @@ function hideLoading() {
 }
       /* ========= MASTER LIST + SUGGEST (HP FRIENDLY) ========= */
       let MASTER = [];
+
+      async function loadMaster() {
+  try {
+    const res = await fetch(API_URL + "?action=getMaster");
+    MASTER = await res.json();
+    console.log("Master loaded:", MASTER);
+  } catch (err) {
+    console.error("Gagal load master", err);
+  }
+}
+
+window.addEventListener("load", loadMaster);
+
 
       function renderSuggest(items) {
         const box = document.getElementById('suggestBox');
@@ -682,6 +697,11 @@ if (payload.type === "KELUAR" && payload.qty < 0) {
 }
 
 setMsg(pesan, true, tipeTampil);
+
+fetch(API_URL, {
+  method: "POST",
+  body: JSON.stringify(payload)
+});
 
   // 🚀 RESET FORM LANGSUNG (INI YANG BIKIN TERASA CEPAT)
 elCode.value = '';
